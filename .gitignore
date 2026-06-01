@@ -1,0 +1,33 @@
+# Build outputs
+[Bb]in/
+[Oo]bj/
+
+# Node / Next.js
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/.turbo/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+
+# Environment / local config
+.env
+.env.*
+appsettings.Development.json
+appsettings.json
+
+# Visual Studio / tooling
+.vs/
+*.pdb
