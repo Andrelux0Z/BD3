@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./page.module.css";
@@ -34,6 +34,8 @@ export default function Home() {
         setIsSuccess(true);
         localStorage.setItem("isAuthenticated", "true");
         localStorage.setItem("idUsuario", data.idUsuario.toString());
+        localStorage.setItem("username", data.username ?? "");
+        if (data.idEmpleado) localStorage.setItem("idEmpleado", data.idEmpleado.toString());
         router.push("/empleados");
       } else {
         if (data.message) {
