@@ -41,7 +41,7 @@ BEGIN
             ( IdUsuario, IdTipoEvento, Descripcion, IpPostIn )
         VALUES
             ( @inIdUsuario
-            , 11
+            , 21
             , CONCAT('{"IdEmpleado":', @inIdEmpleado,
                      ',"FechaInicio":"', @fechaInicio,
                      '","FechaFin":"', @fechaFin, '"}')

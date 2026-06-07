@@ -25,7 +25,7 @@ BEGIN
             ( IdUsuario, IdTipoEvento, Descripcion, IpPostIn )
         VALUES
             ( @inIdUsuario
-            , 11
+            , 21
             , CONCAT('{"IdPlanillaMensual":', @inIdPlanillaMensual, '}')
             , @inIP );
 

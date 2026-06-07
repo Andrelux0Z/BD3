@@ -293,7 +293,7 @@ BEGIN TRY
                 ( IdUsuario, IdTipoEvento, Descripcion, IpPostIn )
             VALUES
                 ( @inIdUsuario
-                , 14
+                , 22
                 , CONCAT('{"IdEmpleado":', @idEmpleado, 
                          ',"MarcaInicio":"', @inMarcaInicio,
                          '","MarcaFin":"', @inMarcaFin, '"}')
