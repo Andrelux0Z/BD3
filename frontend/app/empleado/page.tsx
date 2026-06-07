@@ -54,31 +54,6 @@ const fmtDate = (iso: string) =>
 const fmtNum = (n: number) => n.toFixed(2);
 
 /* ── Shared inline styles ─────────────────────────── */
-const pageStyle: React.CSSProperties = {
-  minHeight: "100vh",
-  fontFamily: "Tahoma, Verdana, sans-serif",
-  background: "#f7f7f7",
-  padding: "32px 20px",
-};
-
-const headerStyle: React.CSSProperties = {
-  maxWidth: "960px",
-  margin: "0 auto 24px",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  gap: "12px",
-};
-
-const tableCardStyle: React.CSSProperties = {
-  maxWidth: "960px",
-  margin: "0 auto 20px",
-  background: "#fff",
-  borderRadius: "8px",
-  boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-  overflow: "hidden",
-};
-
 const thStyle: React.CSSProperties = {
   padding: "10px 12px",
   textAlign: "left",
@@ -102,35 +77,13 @@ const linkStyle: React.CSSProperties = {
   textDecoration: "underline",
 };
 
-const tabBtnBase: React.CSSProperties = {
-  padding: "8px 24px",
-  borderRadius: "4px",
-  fontSize: "14px",
-  fontWeight: 600,
-  cursor: "pointer",
-  border: "none",
-};
-
-const backBtnStyle: React.CSSProperties = {
-  padding: "8px 24px",
-  borderRadius: "4px",
-  border: "1px solid #1aa04a",
-  background: "transparent",
-  color: "#1aa04a",
-  fontSize: "14px",
-  fontWeight: 600,
-  cursor: "pointer",
-};
-
-const closeBtnStyle: React.CSSProperties = {
-  padding: "8px 24px",
-  borderRadius: "4px",
-  border: "none",
-  background: "#c53030",
-  color: "#fff",
-  fontSize: "14px",
-  fontWeight: 600,
-  cursor: "pointer",
+const tableCardStyle: React.CSSProperties = {
+  maxWidth: "960px",
+  margin: "0 auto 20px",
+  background: "#fff",
+  borderRadius: "8px",
+  boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+  overflow: "hidden",
 };
 
 const detailCardStyle: React.CSSProperties = {
@@ -142,9 +95,19 @@ const detailCardStyle: React.CSSProperties = {
   padding: "20px 24px",
 };
 
+const tabBtnBase: React.CSSProperties = {
+  padding: "8px 24px",
+  borderRadius: "4px",
+  fontSize: "14px",
+  fontWeight: 600,
+  cursor: "pointer",
+  border: "none",
+};
+
 /* ── Component ────────────────────────────────────── */
-export default function PlanillaPage() {
+export default function EmpleadoPage() {
   const router = useRouter();
+  const [isAdmin, setIsAdmin] = useState(false);
   const [idEmpleado, setIdEmpleado] = useState<number | null>(null);
   const [tab, setTab] = useState<"semanal" | "mensual">("semanal");
 
@@ -165,8 +128,10 @@ export default function PlanillaPage() {
   /* Auth */
   useEffect(() => {
     const auth = localStorage.getItem("isAuthenticated");
-    const id = localStorage.getItem("idEmpleado");
     if (!auth) { router.push("/"); return; }
+    const tipo = localStorage.getItem("tipo");
+    setIsAdmin(tipo === "1");
+    const id = localStorage.getItem("idEmpleado");
     if (id) setIdEmpleado(Number(id));
   }, [router]);
 
@@ -257,18 +222,67 @@ export default function PlanillaPage() {
     finally { setLoadingDetalle(false); }
   };
 
+  const handleLogout = () => {
+    localStorage.clear();
+    router.push("/");
+  };
+
   return (
-    <main style={pageStyle}>
+    <main style={{
+      minHeight: "100vh",
+      fontFamily: "Tahoma, Verdana, sans-serif",
+      background: "#f7f7f7",
+      padding: "32px 20px",
+    }}>
 
       {/* Header */}
-      <div style={headerStyle}>
+      <div style={{
+        maxWidth: "960px",
+        margin: "0 auto 24px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: "12px",
+      }}>
         <h1 style={{ fontSize: "24px", fontWeight: 600, margin: 0 }}>Planilla</h1>
-        <button style={backBtnStyle} onClick={() => router.push("/empleados")}>
-          ← Volver
-        </button>
+        <div style={{ display: "flex", gap: "8px" }}>
+          {isAdmin && (
+            <button
+              id="btn-volver-admin"
+              onClick={() => router.push("/admin")}
+              style={{
+                padding: "8px 24px",
+                borderRadius: "4px",
+                border: "1px solid #1aa04a",
+                background: "transparent",
+                color: "#1aa04a",
+                fontSize: "14px",
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              ← Volver a administrador
+            </button>
+          )}
+          <button
+            onClick={handleLogout}
+            style={{
+              padding: "8px 24px",
+              borderRadius: "4px",
+              border: "none",
+              background: "#c53030",
+              color: "#fff",
+              fontSize: "14px",
+              fontWeight: 600,
+              cursor: "pointer",
+            }}
+          >
+            Cerrar sesión
+          </button>
+        </div>
       </div>
 
-      {/* Tabs (simple buttons) */}
+      {/* Tabs */}
       <div style={{ maxWidth: "960px", margin: "0 auto 16px", display: "flex", gap: "8px" }}>
         <button
           id="tab-semanal"
@@ -298,24 +312,18 @@ export default function PlanillaPage() {
 
       {/* Error */}
       {(tab === "semanal" && errorSem) && (
-        <p style={{ maxWidth: "960px", margin: "0 auto 12px", color: "#c53030", fontSize: "13px" }}>
-          {errorSem}
-        </p>
+        <p style={{ maxWidth: "960px", margin: "0 auto 12px", color: "#c53030", fontSize: "13px" }}>{errorSem}</p>
       )}
       {(tab === "mensual" && errorMes) && (
-        <p style={{ maxWidth: "960px", margin: "0 auto 12px", color: "#c53030", fontSize: "13px" }}>
-          {errorMes}
-        </p>
+        <p style={{ maxWidth: "960px", margin: "0 auto 12px", color: "#c53030", fontSize: "13px" }}>{errorMes}</p>
       )}
 
       {/* Loading */}
       {((tab === "semanal" && loadingSem) || (tab === "mensual" && loadingMes)) && (
-        <p style={{ maxWidth: "960px", margin: "0 auto", color: "#6a6a6a", fontSize: "14px" }}>
-          Cargando...
-        </p>
+        <p style={{ maxWidth: "960px", margin: "0 auto", color: "#6a6a6a", fontSize: "14px" }}>Cargando...</p>
       )}
 
-      {/* ── Tabla semanal ───────────────────────────── */}
+      {/* ── Tabla semanal ─────────────────────────── */}
       {tab === "semanal" && !loadingSem && (
         <div style={tableCardStyle} id="tabla-semanal">
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
@@ -333,14 +341,10 @@ export default function PlanillaPage() {
             </thead>
             <tbody>
               {semanales.length === 0 && (
-                <tr>
-                  <td colSpan={8} style={{ ...tdStyle, textAlign: "center", color: "#6a6a6a" }}>
-                    Sin datos disponibles
-                  </td>
-                </tr>
+                <tr><td colSpan={8} style={{ ...tdStyle, textAlign: "center", color: "#6a6a6a" }}>Sin datos disponibles</td></tr>
               )}
               {semanales.map((sem) => (
-                <tr key={sem.idPlanillaSemanal} style={{ transition: "background 80ms" }}
+                <tr key={sem.idPlanillaSemanal}
                     onMouseEnter={(e) => (e.currentTarget.style.background = "#f9fdf9")}
                     onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
                 >
@@ -356,11 +360,7 @@ export default function PlanillaPage() {
                   <td style={{ ...tdStyle, textAlign: "right" }}>{fmtNum(sem.horasExtraNormales)}</td>
                   <td style={{ ...tdStyle, textAlign: "right" }}>{fmtNum(sem.horasExtraDobles)}</td>
                   <td style={tdStyle}>
-                    <span style={{
-                      fontSize: "12px",
-                      fontWeight: 600,
-                      color: sem.procesada ? "#276749" : "#6a6a6a",
-                    }}>
+                    <span style={{ fontSize: "12px", fontWeight: 600, color: sem.procesada ? "#276749" : "#6a6a6a" }}>
                       {sem.procesada ? "✓ Procesada" : "Pendiente"}
                     </span>
                   </td>
@@ -371,7 +371,7 @@ export default function PlanillaPage() {
         </div>
       )}
 
-      {/* ── Tabla mensual ───────────────────────────── */}
+      {/* ── Tabla mensual ─────────────────────────── */}
       {tab === "mensual" && !loadingMes && (
         <div style={tableCardStyle} id="tabla-mensual">
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
@@ -386,11 +386,7 @@ export default function PlanillaPage() {
             </thead>
             <tbody>
               {mensuales.length === 0 && (
-                <tr>
-                  <td colSpan={5} style={{ ...tdStyle, textAlign: "center", color: "#6a6a6a" }}>
-                    Sin datos disponibles
-                  </td>
-                </tr>
+                <tr><td colSpan={5} style={{ ...tdStyle, textAlign: "center", color: "#6a6a6a" }}>Sin datos disponibles</td></tr>
               )}
               {mensuales.map((mes) => (
                 <tr key={mes.idPlanillaMensual}
@@ -411,18 +407,30 @@ export default function PlanillaPage() {
         </div>
       )}
 
-      {/* ── Detalle inline ──────────────────────────── */}
+      {/* ── Detalle inline ────────────────────────── */}
       {loadingDetalle && (
-        <p style={{ maxWidth: "960px", margin: "0 auto", color: "#6a6a6a", fontSize: "14px" }}>
-          Cargando detalle...
-        </p>
+        <p style={{ maxWidth: "960px", margin: "0 auto", color: "#6a6a6a", fontSize: "14px" }}>Cargando detalle...</p>
       )}
 
       {detalle && !loadingDetalle && (
         <div style={detailCardStyle}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
             <h2 style={{ fontSize: "16px", fontWeight: 600, margin: 0 }}>{detalle.titulo}</h2>
-            <button style={closeBtnStyle} onClick={() => setDetalle(null)}>Cerrar</button>
+            <button
+              onClick={() => setDetalle(null)}
+              style={{
+                padding: "6px 16px",
+                borderRadius: "4px",
+                border: "1px solid #ccc",
+                background: "transparent",
+                color: "#333",
+                fontSize: "13px",
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              Cerrar
+            </button>
           </div>
 
           {detalle.tipo === "dias" && (

@@ -35,8 +35,10 @@ export default function Home() {
         localStorage.setItem("isAuthenticated", "true");
         localStorage.setItem("idUsuario", data.idUsuario.toString());
         localStorage.setItem("username", data.username ?? "");
+        localStorage.setItem("tipo", data.tipo?.toString() ?? "2");
         if (data.idEmpleado) localStorage.setItem("idEmpleado", data.idEmpleado.toString());
-        router.push("/empleados");
+        // tipo=1 → admin, tipo=2 → empleado
+        router.push(data.tipo?.toString() === "1" ? "/admin" : "/empleado");
       } else {
         if (data.message) {
           setMessage(data.message);
