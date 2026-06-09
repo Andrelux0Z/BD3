@@ -149,26 +149,6 @@ BEGIN
             ,nodo.value('@Descripcion', 'VARCHAR(400)')
         FROM @inXML.nodes('/Datos/Error/error') AS t(nodo);
 
-        -- ------------------------------------------------
-        -- TipoDocumentoIdentidad 
-        -- ------------------------------------------------
-        INSERT INTO dbo.TipoDocumentoIdentidad
-            ( id, Nombre )
-        VALUES
-             (1, 'Cedula Nacional')
-            ,(2, 'DIMEX')
-            ,(3, 'Pasaporte');
-
-        -- ------------------------------------------------
-        -- Departamento 
-        -- ------------------------------------------------
-        INSERT INTO dbo.Departamento
-            ( id, Nombre )
-        VALUES
-             (1, 'Produccion')
-            ,(2, 'Mantenimiento')
-            ,(3, 'Logistica')
-            ,(4, 'Laboratorio');
 
     END TRY
     BEGIN CATCH
