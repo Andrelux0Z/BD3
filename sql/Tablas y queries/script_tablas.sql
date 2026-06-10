@@ -3,18 +3,6 @@
 -- CATÁLOGOS
 -- ============================================================
 
-CREATE TABLE dbo.TipoDocumentoIdentidad (
-     id      INT          NOT NULL
-    ,Nombre  VARCHAR(50)  NOT NULL
-    ,CONSTRAINT PK_TipoDocId PRIMARY KEY (id)
-);
-
-CREATE TABLE dbo.Departamento (
-     id      INT          NOT NULL
-    ,Nombre  VARCHAR(100) NOT NULL
-    ,CONSTRAINT PK_Departamento PRIMARY KEY (id)
-);
-
 CREATE TABLE dbo.TipoJornada (
      id          INT         NOT NULL
     ,Nombre      VARCHAR(50) NOT NULL
@@ -64,6 +52,7 @@ CREATE TABLE dbo.TipoMov (
 CREATE TABLE dbo.TipoDeduccion (
      id              INT  NOT NULL
     ,IdTipoMov       INT  NOT NULL
+    ,Nombre VARCHAR(100) NOT NULL DEFAULT ''
     ,FlagObligatorio BIT  NOT NULL DEFAULT 0
     ,CONSTRAINT PK_TipoDeduccion PRIMARY KEY (id)
     ,CONSTRAINT FK_TD_TipoMov    FOREIGN KEY (IdTipoMov) REFERENCES dbo.TipoMov(id)
@@ -137,17 +126,13 @@ CREATE TABLE dbo.Usuario (
 
 CREATE TABLE dbo.Empleado (
      id                 INT          NOT NULL IDENTITY(1,1)
-    ,IdTipoDocumento    INT          NOT NULL
     ,documentoIdentidad VARCHAR(20)  NOT NULL
     ,Nombre             VARCHAR(200) NOT NULL
-    ,IdDepartamento     INT          NOT NULL
     ,IdPuesto           INT          NOT NULL
     ,CuentaBancaria     VARCHAR(50)  NULL
     ,Activo             BIT          NOT NULL DEFAULT 1
     ,CONSTRAINT PK_Empleado     PRIMARY KEY (id)
     ,CONSTRAINT UQ_DocIdentidad UNIQUE (documentoIdentidad)
-    ,CONSTRAINT FK_Emp_TipoDoc  FOREIGN KEY (IdTipoDocumento) REFERENCES dbo.TipoDocumentoIdentidad(id)
-    ,CONSTRAINT FK_Emp_Depto    FOREIGN KEY (IdDepartamento)  REFERENCES dbo.Departamento(id)
     ,CONSTRAINT FK_Emp_Puesto   FOREIGN KEY (IdPuesto)        REFERENCES dbo.Puesto(id)
 );
 
