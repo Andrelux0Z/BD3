@@ -47,7 +47,6 @@ public class EmpleadosController : ControllerBase
                     nombre = reader.GetString(reader.GetOrdinal("Nombre")),
                     documentoIdentidad = reader.GetString(reader.GetOrdinal("documentoIdentidad")),
                     puesto = reader.GetString(reader.GetOrdinal("NombrePuesto")),
-                    departamento = reader.GetString(reader.GetOrdinal("NombreDepartamento")),
                 });
             }
 
@@ -97,7 +96,6 @@ public class EmpleadosController : ControllerBase
                     nombre = reader.GetString(reader.GetOrdinal("Nombre")),
                     documentoIdentidad = reader.GetString(reader.GetOrdinal("documentoIdentidad")),
                     puesto = reader.GetString(reader.GetOrdinal("NombrePuesto")),
-                    departamento = reader.GetString(reader.GetOrdinal("NombreDepartamento")),
                 });
             }
 

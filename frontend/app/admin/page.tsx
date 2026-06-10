@@ -9,7 +9,6 @@ interface Empleado {
   nombre: string;
   documentoIdentidad: string;
   puesto: string;
-  departamento: string;
 }
 
 const fieldStyle: React.CSSProperties = {
@@ -85,6 +84,12 @@ export default function AdminPage() {
     router.push("/");
   };
 
+  const handleImpersonar = (emp: Empleado) => {
+    localStorage.setItem("impersonadoId", emp.id.toString());
+    localStorage.setItem("impersonadoNombre", emp.nombre);
+    router.push("/empleado");
+  };
+
   return (
     <main style={{
       minHeight: "100vh",
@@ -110,22 +115,6 @@ export default function AdminPage() {
           </p>
         </div>
         <div style={{ display: "flex", gap: "8px" }}>
-          <button
-            id="btn-ver-empleado"
-            onClick={() => router.push("/empleado")}
-            style={{
-              padding: "8px 24px",
-              borderRadius: "4px",
-              border: "none",
-              background: "#1aa04a",
-              color: "#fff",
-              fontSize: "14px",
-              fontWeight: 600,
-              cursor: "pointer",
-            }}
-          >
-            Ver como empleado
-          </button>
           <button
             onClick={handleLogout}
             style={{
@@ -241,7 +230,7 @@ export default function AdminPage() {
                 <th style={{
                   padding: "10px 12px", textAlign: "left", fontSize: "12px",
                   fontWeight: 700, color: "#6a6a6a", borderBottom: "2px solid #eee",
-                }}>Departamento</th>
+                }}>Acción</th>
               </tr>
             </thead>
             <tbody>
@@ -267,7 +256,21 @@ export default function AdminPage() {
                     {emp.puesto}
                   </td>
                   <td style={{ padding: "10px 12px", fontSize: "13px", borderBottom: "1px solid #f0f0f0" }}>
-                    {emp.departamento}
+                    <button
+                      onClick={() => handleImpersonar(emp)}
+                      style={{
+                        padding: "5px 14px",
+                        borderRadius: "4px",
+                        border: "none",
+                        background: "#2a4a7f",
+                        color: "#fff",
+                        fontSize: "12px",
+                        fontWeight: 600,
+                        cursor: "pointer",
+                      }}
+                    >
+                      Impersonar
+                    </button>
                   </td>
                 </tr>
               ))}

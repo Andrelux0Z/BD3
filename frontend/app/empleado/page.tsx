@@ -109,6 +109,7 @@ export default function EmpleadoPage() {
   const router = useRouter();
   const [isAdmin, setIsAdmin] = useState(false);
   const [idEmpleado, setIdEmpleado] = useState<number | null>(null);
+  const [impersonadoNombre, setImpersonadoNombre] = useState<string | null>(null);
   const [tab, setTab] = useState<"semanal" | "mensual">("semanal");
 
   /* Semanal */
@@ -131,8 +132,17 @@ export default function EmpleadoPage() {
     if (!auth) { router.push("/"); return; }
     const tipo = localStorage.getItem("tipo");
     setIsAdmin(tipo === "1");
-    const id = localStorage.getItem("idEmpleado");
-    if (id) setIdEmpleado(Number(id));
+
+    // If admin is impersonating, use that employee's ID
+    const impId = localStorage.getItem("impersonadoId");
+    const impNombre = localStorage.getItem("impersonadoNombre");
+    if (impId) {
+      setIdEmpleado(Number(impId));
+      setImpersonadoNombre(impNombre);
+    } else {
+      const id = localStorage.getItem("idEmpleado");
+      if (id) setIdEmpleado(Number(id));
+    }
   }, [router]);
 
   /* Fetch semanal */
@@ -244,12 +254,23 @@ export default function EmpleadoPage() {
         justifyContent: "space-between",
         gap: "12px",
       }}>
-        <h1 style={{ fontSize: "24px", fontWeight: 600, margin: 0 }}>Planilla</h1>
+        <div>
+          <h1 style={{ fontSize: "24px", fontWeight: 600, margin: 0 }}>Planilla</h1>
+          {impersonadoNombre && (
+            <p style={{ color: "#6a6a6a", fontSize: "13px", margin: "4px 0 0" }}>
+              Viendo como: <strong>{impersonadoNombre}</strong>
+            </p>
+          )}
+        </div>
         <div style={{ display: "flex", gap: "8px" }}>
           {isAdmin && (
             <button
               id="btn-volver-admin"
-              onClick={() => router.push("/admin")}
+              onClick={() => {
+                localStorage.removeItem("impersonadoId");
+                localStorage.removeItem("impersonadoNombre");
+                router.push("/admin");
+              }}
               style={{
                 padding: "8px 24px",
                 borderRadius: "4px",
