@@ -21,6 +21,8 @@ namespace BD3.Api.Models
     public class DetalleSemanalResponse
     {
         public DateTime Fecha           { get; set; }
+        public DateTime HoraEntrada { get; set; }
+        public DateTime HoraSalida  { get; set; }
         public string   TipoMovimiento  { get; set; } = string.Empty;
         public decimal  QHoras          { get; set; }
         public decimal  Monto           { get; set; }
