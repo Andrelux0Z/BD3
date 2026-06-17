@@ -20,6 +20,8 @@ interface PlanillaSemanal {
 
 interface DetalleSemanal {
   fecha: string;
+  horaEntrada: string;
+  horaSalida: string;
   tipoMovimiento: string;
   qHoras: number;
   monto: number;
@@ -52,6 +54,13 @@ const fmt = (n: number) =>
 const fmtDate = (iso: string) =>
   new Date(iso).toLocaleDateString("es-CR", { day: "2-digit", month: "short", year: "numeric" });
 const fmtNum = (n: number) => n.toFixed(2);
+const fmtTime = (iso: string) => {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  return d.toLocaleTimeString("es-CR", { hour: "2-digit", minute: "2-digit", hour12: false });
+};
+
+const CANTIDAD_MIN = 1;
 
 /* ── Shared inline styles ─────────────────────────── */
 const thStyle: React.CSSProperties = {
@@ -110,7 +119,10 @@ export default function EmpleadoPage() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [idEmpleado, setIdEmpleado] = useState<number | null>(null);
   const [impersonadoNombre, setImpersonadoNombre] = useState<string | null>(null);
+  const [username, setUsername] = useState("");
   const [tab, setTab] = useState<"semanal" | "mensual">("semanal");
+  const [cantidadSem, setCantidadSem] = useState(10);
+  const [cantidadMes, setCantidadMes] = useState(10);
 
   /* Semanal */
   const [semanales, setSemanales] = useState<PlanillaSemanal[]>([]);
@@ -132,6 +144,7 @@ export default function EmpleadoPage() {
     if (!auth) { router.push("/"); return; }
     const tipo = localStorage.getItem("tipo");
     setIsAdmin(tipo === "1");
+    setUsername(localStorage.getItem("nombreEmpleado") || localStorage.getItem("username") || "");
 
     // If admin is impersonating, use that employee's ID
     const impId = localStorage.getItem("impersonadoId");
@@ -146,11 +159,11 @@ export default function EmpleadoPage() {
   }, [router]);
 
   /* Fetch semanal */
-  const fetchSemanal = useCallback(async (idEmp: number) => {
+  const fetchSemanal = useCallback(async (idEmp: number, cant: number) => {
     setLoadingSem(true);
     setErrorSem("");
     try {
-      const res = await fetch(`${API}/api/planilla/semanal/${idEmp}?cantidad=10`);
+      const res = await fetch(`${API}/api/planilla/semanal/${idEmp}?cantidad=${cant}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       setSemanales(await res.json());
     } catch (e: unknown) {
@@ -159,11 +172,11 @@ export default function EmpleadoPage() {
   }, []);
 
   /* Fetch mensual */
-  const fetchMensual = useCallback(async (idEmp: number) => {
+  const fetchMensual = useCallback(async (idEmp: number, cant: number) => {
     setLoadingMes(true);
     setErrorMes("");
     try {
-      const res = await fetch(`${API}/api/planilla/mensual/${idEmp}?cantidad=6`);
+      const res = await fetch(`${API}/api/planilla/mensual/${idEmp}?cantidad=${cant}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       setMensuales(await res.json());
     } catch (e: unknown) {
@@ -173,13 +186,13 @@ export default function EmpleadoPage() {
 
   useEffect(() => {
     if (!idEmpleado) return;
-    fetchSemanal(idEmpleado);
-  }, [idEmpleado, fetchSemanal]);
+    fetchSemanal(idEmpleado, cantidadSem);
+  }, [idEmpleado, cantidadSem, fetchSemanal]);
 
   useEffect(() => {
     if (!idEmpleado || tab !== "mensual") return;
-    if (mensuales.length === 0) fetchMensual(idEmpleado);
-  }, [idEmpleado, tab, mensuales.length, fetchMensual]);
+    fetchMensual(idEmpleado, cantidadMes);
+  }, [idEmpleado, tab, cantidadMes, fetchMensual]);
 
   /* Detalle días */
   const verDias = async (sem: PlanillaSemanal) => {
@@ -256,11 +269,15 @@ export default function EmpleadoPage() {
       }}>
         <div>
           <h1 style={{ fontSize: "24px", fontWeight: 600, margin: 0 }}>Planilla</h1>
-          {impersonadoNombre && (
+          {impersonadoNombre ? (
             <p style={{ color: "#6a6a6a", fontSize: "13px", margin: "4px 0 0" }}>
               Viendo como: <strong>{impersonadoNombre}</strong>
             </p>
-          )}
+          ) : username ? (
+            <p style={{ color: "#6a6a6a", fontSize: "13px", margin: "4px 0 0" }}>
+              Sesión de: <strong>{username}</strong>
+            </p>
+          ) : null}
         </div>
         <div style={{ display: "flex", gap: "8px" }}>
           {isAdmin && (
@@ -329,6 +346,33 @@ export default function EmpleadoPage() {
         >
           Mensual
         </button>
+      </div>
+
+      {/* Cantidad selector */}
+      <div style={{ maxWidth: "960px", margin: "0 auto 12px", display: "flex", alignItems: "center", gap: "8px" }}>
+        <label style={{ fontSize: "13px", fontWeight: 600, color: "#333" }} htmlFor="cantidad">
+          Mostrar:
+        </label>
+        <input
+          id="cantidad"
+          type="number"
+          min={CANTIDAD_MIN}
+          value={tab === "semanal" ? cantidadSem : cantidadMes}
+          onChange={(e) => {
+            const val = Math.max(CANTIDAD_MIN, Number(e.target.value) || CANTIDAD_MIN);
+            if (tab === "semanal") setCantidadSem(val);
+            else setCantidadMes(val);
+          }}
+          style={{
+            padding: "6px 10px",
+            borderRadius: "4px",
+            border: "1px solid #ccc",
+            fontSize: "14px",
+            outline: "none",
+            width: "80px",
+          }}
+        />
+        <span style={{ fontSize: "13px", color: "#6a6a6a" }}>entradas</span>
       </div>
 
       {/* Error */}
@@ -459,6 +503,8 @@ export default function EmpleadoPage() {
               <thead>
                 <tr>
                   <th style={thStyle}>Fecha</th>
+                  <th style={thStyle}>Hora Entrada</th>
+                  <th style={thStyle}>Hora Salida</th>
                   <th style={thStyle}>Tipo de movimiento</th>
                   <th style={{ ...thStyle, textAlign: "right" }}>Horas</th>
                   <th style={{ ...thStyle, textAlign: "right" }}>Monto</th>
@@ -466,11 +512,13 @@ export default function EmpleadoPage() {
               </thead>
               <tbody>
                 {detalle.data.length === 0 && (
-                  <tr><td colSpan={4} style={{ ...tdStyle, textAlign: "center", color: "#6a6a6a" }}>Sin movimientos</td></tr>
+                  <tr><td colSpan={6} style={{ ...tdStyle, textAlign: "center", color: "#6a6a6a" }}>Sin movimientos</td></tr>
                 )}
                 {detalle.data.map((d, i) => (
                   <tr key={i}>
                     <td style={tdStyle}>{fmtDate(d.fecha)}</td>
+                    <td style={tdStyle}>{fmtTime(d.horaEntrada)}</td>
+                    <td style={tdStyle}>{fmtTime(d.horaSalida)}</td>
                     <td style={tdStyle}>{d.tipoMovimiento}</td>
                     <td style={{ ...tdStyle, textAlign: "right" }}>{fmtNum(d.qHoras)}</td>
                     <td style={{ ...tdStyle, textAlign: "right" }}>{fmt(d.monto)}</td>
