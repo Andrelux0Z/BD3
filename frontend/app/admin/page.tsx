@@ -79,15 +79,19 @@ export default function AdminPage() {
     cargarEmpleados();
   };
 
-  const handleLogout = () => {
-    localStorage.clear();
-    router.push("/");
+  const handleLogout = async () => {
+      const idUsuario = localStorage.getItem("idUsuario") ?? "1";
+      await fetch(`${API}/api/eventos/logout?idUsuario=${idUsuario}`, { method: "POST" });
+      localStorage.clear();
+      router.push("/");
   };
 
-  const handleImpersonar = (emp: Empleado) => {
-    localStorage.setItem("impersonadoId", emp.id.toString());
-    localStorage.setItem("impersonadoNombre", emp.nombre);
-    router.push("/empleado");
+  const handleImpersonar = async (emp: Empleado) => {
+      const idUsuario = localStorage.getItem("idUsuario") ?? "1";
+      await fetch(`${API}/api/eventos/impersonar/${emp.id}?idUsuario=${idUsuario}`, { method: "POST" });
+      localStorage.setItem("impersonadoId", emp.id.toString());
+      localStorage.setItem("impersonadoNombre", emp.nombre);
+      router.push("/empleado");
   };
 
   return (

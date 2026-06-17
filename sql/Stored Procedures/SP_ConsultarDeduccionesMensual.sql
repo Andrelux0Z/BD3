@@ -21,13 +21,6 @@ BEGIN
         GROUP BY TM.Nombre
         ORDER BY TM.Nombre ASC;
 
-        INSERT INTO dbo.BitacoraEvento
-            ( IdUsuario, IdTipoEvento, Descripcion, IpPostIn )
-        VALUES
-            ( @inIdUsuario
-            , 21
-            , CONCAT('{"IdPlanillaMensual":', @inIdPlanillaMensual, '}')
-            , @inIP );
 
     END TRY
     BEGIN CATCH

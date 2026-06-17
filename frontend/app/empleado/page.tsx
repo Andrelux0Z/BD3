@@ -123,6 +123,8 @@ export default function EmpleadoPage() {
   const [tab, setTab] = useState<"semanal" | "mensual">("semanal");
   const [cantidadSem, setCantidadSem] = useState(10);
   const [cantidadMes, setCantidadMes] = useState(10);
+  const [idUsuario, setIdUsuario] = useState<number>(1);
+
 
   /* Semanal */
   const [semanales, setSemanales] = useState<PlanillaSemanal[]>([]);
@@ -145,6 +147,9 @@ export default function EmpleadoPage() {
     const tipo = localStorage.getItem("tipo");
     setIsAdmin(tipo === "1");
     setUsername(localStorage.getItem("nombreEmpleado") || localStorage.getItem("username") || "");
+    const uid = localStorage.getItem("idUsuario");
+    if (uid) setIdUsuario(Number(uid));
+
 
     // If admin is impersonating, use that employee's ID
     const impId = localStorage.getItem("impersonadoId");
@@ -163,26 +168,26 @@ export default function EmpleadoPage() {
     setLoadingSem(true);
     setErrorSem("");
     try {
-      const res = await fetch(`${API}/api/planilla/semanal/${idEmp}?cantidad=${cant}`);
+      const res = await fetch(`${API}/api/planilla/semanal/${idEmp}?cantidad=${cant}&idUsuario=${idUsuario}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       setSemanales(await res.json());
     } catch (e: unknown) {
       setErrorSem(e instanceof Error ? e.message : "Error al cargar planilla semanal");
     } finally { setLoadingSem(false); }
-  }, []);
+  }, [idUsuario]);
 
   /* Fetch mensual */
   const fetchMensual = useCallback(async (idEmp: number, cant: number) => {
     setLoadingMes(true);
     setErrorMes("");
     try {
-      const res = await fetch(`${API}/api/planilla/mensual/${idEmp}?cantidad=${cant}`);
+      const res = await fetch(`${API}/api/planilla/mensual/${idEmp}?cantidad=${cant}&idUsuario=${idUsuario}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       setMensuales(await res.json());
     } catch (e: unknown) {
       setErrorMes(e instanceof Error ? e.message : "Error al cargar planilla mensual");
     } finally { setLoadingMes(false); }
-  }, []);
+  }, [idUsuario]);
 
   useEffect(() => {
     if (!idEmpleado) return;
@@ -245,9 +250,10 @@ export default function EmpleadoPage() {
     finally { setLoadingDetalle(false); }
   };
 
-  const handleLogout = () => {
-    localStorage.clear();
-    router.push("/");
+  const handleLogout = async () => {
+      await fetch(`${API}/api/eventos/logout?idUsuario=${idUsuario}`, { method: "POST" });
+      localStorage.clear();
+      router.push("/");
   };
 
   return (
@@ -283,10 +289,11 @@ export default function EmpleadoPage() {
           {isAdmin && (
             <button
               id="btn-volver-admin"
-              onClick={() => {
-                localStorage.removeItem("impersonadoId");
-                localStorage.removeItem("impersonadoNombre");
-                router.push("/admin");
+              onClick={async () => {
+                  await fetch(`${API}/api/eventos/regresar?idUsuario=${idUsuario}`, { method: "POST" });
+                  localStorage.removeItem("impersonadoId");
+                  localStorage.removeItem("impersonadoNombre");
+                  router.push("/admin");
               }}
               style={{
                 padding: "8px 24px",
@@ -330,7 +337,11 @@ export default function EmpleadoPage() {
             color: tab === "semanal" ? "#fff" : "#1aa04a",
             border: tab === "semanal" ? "none" : "1px solid #1aa04a",
           }}
-          onClick={() => { setTab("semanal"); setDetalle(null); }}
+          onClick={() => {
+              setTab("semanal");
+              setDetalle(null);
+              if (idEmpleado) fetchSemanal(idEmpleado, cantidadSem);
+          }}
         >
           Semanal
         </button>

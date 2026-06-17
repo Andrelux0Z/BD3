@@ -17,7 +17,7 @@ BEGIN
 
         INSERT INTO dbo.BitacoraEvento (IdUsuario, IdTipoEvento, Descripcion, IpPostIn)
         VALUES
-            (@inIdUsuario, 11, NULL, @inIP);
+            (@inIdUsuario, 17, NULL, @inIP);
 
         SELECT
              E.id
