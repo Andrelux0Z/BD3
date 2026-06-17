@@ -105,6 +105,8 @@ namespace BD3.Api.Controllers
                 {
                     resultado.Add(new DetalleSemanalResponse
                     {
+                        HoraEntrada = reader.GetDateTime(reader.GetOrdinal("HoraEntrada")),
+                        HoraSalida = reader.GetDateTime(reader.GetOrdinal("HoraSalida")),
                         Fecha = reader.GetDateTime(reader.GetOrdinal("Fecha")),
                         TipoMovimiento  = reader.GetString(reader.GetOrdinal("TipoMovimiento")),
                         QHoras = reader.GetDecimal(reader.GetOrdinal("QHoras")),
